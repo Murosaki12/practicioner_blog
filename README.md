@@ -2,7 +2,7 @@
 
 A personal knowledge base covering QA engineering and AI testing — written by a practitioner, for practitioners.
 
-Live site: [yourusername.github.io/qa-notes](https://yourusername.github.io/qa-notes)
+Live site: [yourusername.github.io/qa-notes](https://Murosaki12.github.io/practicioner_blog)
 
 ## What's in here
 
