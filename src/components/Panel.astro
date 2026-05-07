@@ -1,0 +1,8 @@
+---
+const { variant = 'blue', title } = Astro.props;
+---
+
+<div class={`panel panel-${variant}`}>
+  {title && <div class="panel-title">{title}</div>}
+  <slot />
+</div>

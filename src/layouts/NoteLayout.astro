@@ -1,0 +1,29 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+const { title, description, pubDate, tags = [] } = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString('en', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<BaseLayout title={title} description={description}>
+  <article>
+    <header class="note-header">
+      <span class="note-meta">{formattedDate}</span>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      {tags.length > 0 && (
+        <div class="tags" aria-label="Tags">
+          {tags.map((tag) => <span class="tag">{tag}</span>)}
+        </div>
+      )}
+    </header>
+    <div class="note-body">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

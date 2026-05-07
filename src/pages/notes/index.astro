@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const notes = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="Learning Notes"
+  description="Learning notes on QA practice, AI testing, and product quality."
+>
+  <section class="intro">
+    <h1>Learning Notes</h1>
+    <p class="lead">Field notes for QA practice, AI testing, and ideas that are still evolving.</p>
+  </section>
+
+  <ul class="note-list">
+    {notes.map((note) => (
+      <li class="note-card">
+        <span class="note-meta">
+          {note.data.pubDate.toLocaleDateString('en', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </span>
+        <a href={base + '/notes/' + note.slug + '/'}>{note.data.title}</a>
+        <p>{note.data.description}</p>
+        {note.data.tags && (
+          <div class="tags" aria-label={`Tags for ${note.data.title}`}>
+            {note.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        )}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

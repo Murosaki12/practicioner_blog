@@ -1,0 +1,7 @@
+---
+const { variant = 'blue' } = Astro.props;
+---
+
+<span class={`badge badge-${variant}`}>
+  <slot />
+</span>

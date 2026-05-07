@@ -1,0 +1,41 @@
+---
+import '../styles/global.css';
+
+const { title = 'Practicioner Blog', description = 'Learning notes and QA practice.' } = Astro.props;
+
+const pageTitle = title === 'Practicioner Blog' ? title : `${title} | Practicioner Blog`;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const homeHref = base + '/';
+const notesHref = base + '/notes/';
+const changelogHref = base + '/changelog/';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="nav-inner">
+        <a class="site-title" href={homeHref}>Practicioner Blog</a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href={homeHref}>Home</a>
+          <a href={notesHref}>Notes</a>
+          <a href={changelogHref}>Changelog</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>&copy; {new Date().getFullYear()} Practicioner Blog. Built with Astro.</p>
+      </div>
+    </footer>
+  </body>
+</html>
