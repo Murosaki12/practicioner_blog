@@ -1,33 +1,98 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const notesHref = base + '/notes/';
-const changelogHref = base + '/changelog/';
+
+const allNotes = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const recentNotes = allNotes.slice(0, 3);
 ---
 
 <BaseLayout
-  title="Practicioner Blog"
-  description="A personal site for QA practice, learning notes, and project changelogs."
+  title="Duke Hoang"
+  description="Learning notes on QA, AI, and software craft — written in plain words."
+  activePage="home"
 >
-  <section class="intro">
-    <h1>Practicioner Blog</h1>
-    <p class="lead">
-      A personal workspace for QA practice, product quality thinking, and notes from the field.
-    </p>
-  </section>
+  <div class="container">
+    <!-- Hero -->
+    <section class="hero fade-in">
+      <span class="eyebrow"><span class="dot"></span>Personal notes &middot; est. 2026</span>
+      <h1>Hi, I'm Duke. I write hard things down in <span class="accent">plain words</span> so I can actually understand them.</h1>
+      <p class="lead">
+        I'm an amateur software engineer curious about AI, QA, and how good software gets made.
+        The hard topics don't always stick on the first read — so I rewrite what I'm learning in the
+        simplest way I can. These notes are mostly for future-me. If any of them happen to help you too,
+        that would be fantastic.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="label">Now</span>
+          <span class="value">reading source code on weekends</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="label">Writing about</span>
+          <span class="value">QA &middot; LLMs &middot; learning</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="label">Notes published</span>
+          <span class="value">{allNotes.length}</span>
+        </div>
+      </div>
+    </section>
 
-  <section aria-labelledby="site-sections">
-    <h2 id="site-sections">Sections</h2>
-    <ul class="link-list">
-      <li class="link-item">
-        <a href={notesHref}>Learning Notes</a>
-        <p>Markdown notes on QA frameworks, AI testing, and other topics worth keeping close.</p>
-      </li>
-      <li class="link-item">
-        <a href={changelogHref}>Changelog</a>
-        <p>A lightweight record of site updates and learning milestones.</p>
-      </li>
-    </ul>
-  </section>
+    <!-- Recent notes -->
+    <section class="section fade-in fade-in-2">
+      <div class="section-head">
+        <h2>Recent notes</h2>
+        <a class="more" href={base + '/notes/'}>All notes &rarr;</a>
+      </div>
+      <ul class="note-list">
+        {recentNotes.map((note, i) => {
+          const date = note.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return (
+            <li>
+              <a
+                class={'note-row fade-in fade-in-' + Math.min(i + 1, 3)}
+                href={base + '/notes/' + note.slug + '/'}
+              >
+                <div class="note-date">{date}</div>
+                <div class="note-body">
+                  <div class="note-title">{note.data.title}</div>
+                  <div class="note-desc">{note.data.description}</div>
+                  <div class="note-tags">
+                    {(note.data.tags ?? []).map(t => <span class="tag">#{t}</span>)}
+                  </div>
+                </div>
+                <div class="note-time">{note.data.readTime ?? 5} min read</div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    <!-- About snippet -->
+    <section class="section fade-in fade-in-3" style="padding-top:0">
+      <div style="padding:1.6rem 1.8rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center">
+        <div>
+          <p style="margin:0 0 0.6rem;font-size:0.96rem;color:var(--ink-2);line-height:1.6">
+            <span style="color:var(--ink);font-weight:600">Duke Hoang</span> &mdash; QA practitioner, amateur engineer,
+            and perpetual learner. I share notes so that the effort of understanding something once
+            can be useful to others.
+          </p>
+          <a href={base + '/about/'} style="font-size:0.88rem;color:var(--accent);font-weight:500">More about me &rarr;</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;text-align:right;border-left:1px solid var(--border);padding-left:1.6rem;min-width:120px">
+          <span style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)">currently</span>
+          <span style="font-family:var(--font-serif);font-style:italic;font-size:1rem;color:var(--ink-2)">learning in public</span>
+        </div>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .accent { color: var(--accent); font-style: italic; }
+</style>

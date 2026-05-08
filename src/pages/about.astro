@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout
+  title="About"
+  description="About Duke Hoang — QA practitioner, amateur engineer, and perpetual learner."
+  activePage="about"
+>
+  <div class="container">
+    <section class="hero fade-in">
+      <span class="eyebrow"><span class="dot"></span>About me</span>
+      <h1>Duke Hoang</h1>
+      <p class="lead">
+        QA practitioner, amateur software engineer, and someone who learns by writing things down in the
+        simplest way possible.
+      </p>
+    </section>
+
+    <div class="about-grid fade-in fade-in-1">
+      <div class="about-col">
+        <h2 class="about-heading">Background</h2>
+        <p>
+          I work in software quality &mdash; thinking about how products break, how to find failures before
+          users do, and how to communicate risk clearly to teams. QA is often misunderstood as "just running
+          tests," but I see it as a discipline of curiosity and structured thinking.
+        </p>
+        <p>
+          On the side, I'm teaching myself software engineering properly: reading source code, shipping small
+          projects, and getting comfortable with the parts of the stack I don't fully understand yet.
+        </p>
+        <p>
+          I'm especially interested in how AI is changing the way we build and test software &mdash; the
+          opportunities are real but so are the new failure modes.
+        </p>
+      </div>
+
+      <div class="about-col">
+        <h2 class="about-heading">Currently</h2>
+        <ul class="about-list">
+          <li><span class="li-label">Learning</span>AI testing, prompt engineering, React</li>
+          <li><span class="li-label">Reading</span>Source code of tools I use every day</li>
+          <li><span class="li-label">Writing</span>Long-form notes on QA and AI topics</li>
+          <li><span class="li-label">Building</span>This site and small weekend projects</li>
+          <li><span class="li-label">Thinking</span>How LLMs change QA workflows</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="section fade-in fade-in-2">
+      <h2 class="about-heading">Why this site?</h2>
+      <p style="color:var(--ink-2);line-height:1.65;max-width:60ch">
+        The hard stuff doesn't stick on the first read. I write these notes so that the effort of
+        understanding something once can be useful to future-me &mdash; and maybe to you too. If a note
+        helped you, that's genuinely great. If something is wrong, please tell me.
+      </p>
+
+      <div class="contact-cards" style="margin-top:1.8rem">
+        <a class="contact-card" href="mailto:haduc1299@gmail.com">
+          <div class="contact-card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">Email</div>
+            <div class="contact-card-value">haduc1299@gmail.com</div>
+          </div>
+        </a>
+        <a class="contact-card" href="https://github.com/Murosaki12" target="_blank" rel="noopener">
+          <div class="contact-card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.59.23 2.76.11 3.05.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.05.78 2.12v3.14c0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">GitHub</div>
+            <div class="contact-card-value">Murosaki12</div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

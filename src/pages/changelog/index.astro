@@ -1,18 +1,82 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const CHANGELOG = [
+  {
+    date: '2026-05-08',
+    type: 'added',
+    title: 'Full site redesign',
+    body: 'New editorial design with proper light/dark support, Newsreader + Geist type, violet accents, and global ⌘K search across all notes.',
+  },
+  {
+    date: '2026-05-08',
+    type: 'added',
+    title: 'Note-taking drawer',
+    body: 'Added a "Take notes" floating button that opens a side drawer where you can jot things down while reading. Notes are saved in your browser and downloadable as a .txt file.',
+  },
+  {
+    date: '2026-05-07',
+    type: 'added',
+    title: 'QA Framework and AI for QA notes published',
+    body: 'Two long-form pieces I\'ve been working on: a risk-based QA process with FMEA, and an introduction to LLMs, RAG, and AI testing for QA people.',
+  },
+  {
+    date: '2026-04-12',
+    type: 'changed',
+    title: 'Article reading layout',
+    body: 'Switched to a narrower column with a sticky table of contents for long pieces. Reading progress bar added at the top.',
+  },
+  {
+    date: '2026-03-30',
+    type: 'fixed',
+    title: 'Mobile typography',
+    body: 'Headings were rendering too tight on small screens. Now uses a fluid type scale with clamp().',
+  },
+  {
+    date: '2026-03-10',
+    type: 'added',
+    title: 'Astro + Keystatic migration',
+    body: 'Migrated the site from a single HTML file to Astro with MDX content and Keystatic CMS for easy editing.',
+  },
+  {
+    date: '2026-02-14',
+    type: 'added',
+    title: 'Started keeping notes',
+    body: 'First entries went up. The goal: write down things I\'d want to read later, in the simplest way possible.',
+  },
+];
+
+const typeLabels: Record<string, string> = {
+  added: 'added',
+  changed: 'changed',
+  fixed: 'fixed',
+};
 ---
 
 <BaseLayout
   title="Changelog"
-  description="A lightweight changelog for updates to Practicioner Blog."
+  description="A lightweight record of site updates and learning milestones."
 >
-  <section class="intro">
-    <h1>Changelog</h1>
-    <p class="lead">A lightweight record of site updates and learning milestones.</p>
-  </section>
+  <div class="container">
+    <section class="hero fade-in">
+      <span class="eyebrow"><span class="dot"></span>Site history</span>
+      <h1>Changelog</h1>
+      <p class="lead">A record of updates, new notes, and milestones. The site is always a work in progress.</p>
+    </section>
 
-  <section aria-labelledby="latest">
-    <h2 id="latest">Latest</h2>
-    <p>Astro migration scaffold added with Markdown-powered learning notes.</p>
-  </section>
+    <section class="section fade-in fade-in-1">
+      <ul class="changelog-list">
+        {CHANGELOG.map((item, i) => (
+          <li class={'cl-item fade-in fade-in-' + Math.min(i + 1, 3)}>
+            <div class="cl-date">{item.date}</div>
+            <div>
+              <div class={'cl-tag ' + (typeLabels[item.type] ?? 'changed')}>{item.type}</div>
+              <div class="cl-title">{item.title}</div>
+              <div class="cl-body">{item.body}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
 </BaseLayout>

@@ -1,41 +1,367 @@
 ---
 import '../styles/global.css';
+import { getCollection } from 'astro:content';
 
-const { title = 'Practicioner Blog', description = 'Learning notes and QA practice.' } = Astro.props;
+interface Props {
+  title?: string;
+  description?: string;
+  activePage?: string;
+}
 
-const pageTitle = title === 'Practicioner Blog' ? title : `${title} | Practicioner Blog`;
+const { title = 'Duke Hoang', description = 'Learning notes on QA, AI, and software craft.', activePage = '' } = Astro.props;
+const pageTitle = title === 'Duke Hoang' ? title : `${title} | Duke Hoang`;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const homeHref = base + '/';
-const notesHref = base + '/notes/';
-const changelogHref = base + '/changelog/';
+
+// Fetch notes at build time for global search
+let searchNotes: Array<{ title: string; description: string; slug: string; tags: string[]; readTime: number }> = [];
+try {
+  const notes = await getCollection('blog');
+  searchNotes = notes.map(n => ({
+    title: n.data.title,
+    description: n.data.description ?? '',
+    slug: n.slug,
+    tags: n.data.tags ?? [],
+    readTime: n.data.readTime ?? 5,
+  }));
+} catch {}
+
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{pageTitle}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script is:inline>
+      // Apply saved theme before render to avoid flash
+      (function() {
+        try {
+          var t = localStorage.getItem('theme') || 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
+    <!-- Reading progress (shown on article pages via JS) -->
+    <div class="read-progress" id="read-progress"></div>
+
     <header class="site-header">
-      <div class="nav-inner">
-        <a class="site-title" href={homeHref}>Practicioner Blog</a>
-        <nav class="site-nav" aria-label="Primary navigation">
-          <a href={homeHref}>Home</a>
-          <a href={notesHref}>Notes</a>
-          <a href={changelogHref}>Changelog</a>
-        </nav>
+      <div class="container-wide">
+        <div class="header-inner">
+          <a class="brand" href={base + '/'} aria-label="Duke Hoang — Home">
+            <span class="brand-mark" aria-hidden="true">D</span>
+            <span>Duke Hoang</span>
+          </a>
+
+          <button class="header-search" id="open-search" aria-label="Search notes (⌘K)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <span class="header-search-text" id="header-placeholder">Did Duke even know about this?...</span>
+            <span class="header-search-kbd">⌘K</span>
+          </button>
+
+          <nav class="site-nav" aria-label="Primary navigation">
+            <a class={"nav-link" + (activePage === 'home' ? ' active' : '')} href={base + '/'}>Home</a>
+            <a class={"nav-link" + (activePage === 'notes' ? ' active' : '')} href={base + '/notes/'}>Notes</a>
+            <a class={"nav-link" + (activePage === 'projects' ? ' active' : '')} href={base + '/projects/'}>Projects</a>
+            <a class={"nav-link" + (activePage === 'about' ? ' active' : '')} href={base + '/about/'}>About</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">
+              <svg id="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <svg id="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            </button>
+          </nav>
+        </div>
       </div>
     </header>
+
     <main>
       <slot />
     </main>
+
     <footer class="site-footer">
-      <div class="footer-inner">
-        <p>&copy; {new Date().getFullYear()} Practicioner Blog. Built with Astro.</p>
+      <div class="container-wide">
+        <div class="footer-inner">
+          <div class="footer-left">
+            <div>&copy; {new Date().getFullYear()} Duke Hoang &middot; Notes from the field</div>
+            <div class="footer-links">
+              <a href={base + '/about/'}>About</a>
+              <a href={base + '/projects/'}>Projects</a>
+              <a href={base + '/changelog/'}>Changelog</a>
+              <a href="mailto:haduc1299@gmail.com">Email</a>
+              <a href="https://github.com/Murosaki12" target="_blank" rel="noopener">GitHub</a>
+            </div>
+          </div>
+          <div class="footer-socials">
+            <a class="social-btn" href="mailto:haduc1299@gmail.com" aria-label="Email" title="Email">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            </a>
+            <a class="social-btn" href="https://github.com/Murosaki12" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.59.23 2.76.11 3.05.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.05.78 2.12v3.14c0 .31.21.67.8.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+            </a>
+            <div class="made">written with curiosity <span class="heart">&#9829;</span></div>
+          </div>
+        </div>
       </div>
     </footer>
+
+    <!-- FAB stack: Notes drawer + feedback -->
+    <div class="fab-stack">
+      <button class="fab" id="open-notes-drawer" aria-label="Open note-taking drawer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        <span class="fab-label">Take notes</span>
+      </button>
+    </div>
+
+    <!-- Notes drawer -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <aside class="notes-drawer" id="notes-drawer" aria-label="Note-taking drawer">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title">Your notes</div>
+          <div class="drawer-sub">Jot anything down. Download when done.</div>
+        </div>
+        <button class="icon-btn" id="close-drawer" aria-label="Close notes drawer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <textarea
+        class="notes-textarea"
+        id="notes-content"
+        placeholder="Start typing your notes here...&#10;&#10;Tip: Your notes are saved in your browser automatically."
+        aria-label="Your notes"
+      ></textarea>
+      <div class="drawer-foot">
+        <div class="drawer-stat" id="drawer-stat">0 words</div>
+        <div class="drawer-actions">
+          <button class="btn-ghost" id="clear-notes" style="font-size:0.82rem;padding:0.4rem 0.7rem">Clear</button>
+          <button class="btn-primary" id="download-notes" style="font-size:0.82rem;padding:0.4rem 0.7rem">Download .txt</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Search modal -->
+    <div class="modal-backdrop" id="search-backdrop" style="display:none" role="dialog" aria-label="Search notes" aria-modal="true">
+      <div class="search-modal" id="search-modal">
+        <div class="search-modal-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            type="text"
+            class="search-modal-input"
+            id="search-modal-input"
+            placeholder="Search notes by title, topic, or tag..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="search-modal-results" id="search-modal-results">
+          <div class="search-modal-label">All notes</div>
+          <div id="search-results-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script define:vars={{ searchNotes, siteBase: base }}>
+      (function() {
+        var base = siteBase;
+
+        // ── Theme toggle ──────────────────────────────────────
+        var html = document.documentElement;
+        var btn = document.getElementById('theme-toggle');
+        var iconMoon = document.getElementById('icon-moon');
+        var iconSun = document.getElementById('icon-sun');
+
+        function applyTheme(t) {
+          html.setAttribute('data-theme', t);
+          try { localStorage.setItem('theme', t); } catch(e) {}
+          if (t === 'dark') {
+            iconMoon.style.display = 'none';
+            iconSun.style.display = '';
+          } else {
+            iconMoon.style.display = '';
+            iconSun.style.display = 'none';
+          }
+        }
+
+        // Sync icon with current theme on load
+        applyTheme(html.getAttribute('data-theme') || 'light');
+
+        if (btn) {
+          btn.addEventListener('click', function() {
+            applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+          });
+        }
+
+        // ── Search ────────────────────────────────────────────
+        var notes = searchNotes;
+
+        var backdrop = document.getElementById('search-backdrop');
+        var modalInput = document.getElementById('search-modal-input');
+        var resultsList = document.getElementById('search-results-list');
+        var modalLabel = backdrop ? backdrop.querySelector('.search-modal-label') : null;
+
+        var PLACEHOLDERS = [
+          'Did Duke even know about this?...',
+          'Is there a note on this already?...',
+          'What did Future-Duke write here?...',
+          'Try "ai", "qa", or "testing"...',
+          'Search for anything...',
+          'Duke probably wrote about this...',
+        ];
+        var phIdx = 0;
+        var headerPh = document.getElementById('header-placeholder');
+        if (headerPh) {
+          setInterval(function() {
+            phIdx = (phIdx + 1) % PLACEHOLDERS.length;
+            headerPh.textContent = PLACEHOLDERS[phIdx];
+          }, 3500);
+        }
+
+        function renderResults(q) {
+          var b = base;
+          var q2 = q.trim().toLowerCase();
+          var filtered = q2 ? notes.filter(function(n) {
+            return n.title.toLowerCase().includes(q2) ||
+              n.description.toLowerCase().includes(q2) ||
+              n.tags.some(function(t) { return t.toLowerCase().includes(q2); });
+          }) : notes;
+
+          if (modalLabel) modalLabel.textContent = q2 ? 'Results for "' + q + '"' : 'All notes';
+
+          if (!filtered.length) {
+            resultsList.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:0.92rem">No notes matched. Try a different search.</div>';
+            return;
+          }
+          resultsList.innerHTML = filtered.map(function(n) {
+            var tagsHtml = n.tags.map(function(t) { return '<span class="tag">#' + t + '</span>'; }).join('');
+            return '<a class="search-result" href="' + b + '/notes/' + n.slug + '/">' +
+              '<div class="search-result-title">' + escHtml(n.title) + '</div>' +
+              '<div class="search-result-desc">' + escHtml(n.description) + '</div>' +
+              '<div class="search-result-meta">' + tagsHtml +
+              '<span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--faint);margin-left:0.4rem">' + n.readTime + ' min read</span>' +
+              '</div></a>';
+          }).join('');
+        }
+
+        function escHtml(s) {
+          return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function openSearch() {
+          if (!backdrop) return;
+          backdrop.style.display = 'flex';
+          renderResults('');
+          setTimeout(function() { if (modalInput) modalInput.focus(); }, 50);
+          document.body.style.overflow = 'hidden';
+        }
+        function closeSearch() {
+          if (!backdrop) return;
+          backdrop.style.display = 'none';
+          document.body.style.overflow = '';
+          if (modalInput) modalInput.value = '';
+        }
+
+        var openBtn = document.getElementById('open-search');
+        if (openBtn) openBtn.addEventListener('click', openSearch);
+
+        if (backdrop) {
+          backdrop.addEventListener('click', function(e) {
+            if (e.target === backdrop) closeSearch();
+          });
+        }
+        if (modalInput) {
+          modalInput.addEventListener('input', function() {
+            renderResults(modalInput.value);
+          });
+        }
+
+        document.addEventListener('keydown', function(e) {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (backdrop && backdrop.style.display !== 'none') { closeSearch(); } else { openSearch(); }
+          }
+          if (e.key === 'Escape' && backdrop && backdrop.style.display !== 'none') {
+            closeSearch();
+          }
+        });
+
+        // ── Notes drawer ──────────────────────────────────────
+        var drawerBackdrop = document.getElementById('drawer-backdrop');
+        var drawer = document.getElementById('notes-drawer');
+        var notesTA = document.getElementById('notes-content');
+        var drawerStat = document.getElementById('drawer-stat');
+
+        // Load saved notes
+        try {
+          var saved = localStorage.getItem('duke-notes');
+          if (saved && notesTA) notesTA.value = saved;
+        } catch(e) {}
+
+        function updateStat() {
+          if (!notesTA || !drawerStat) return;
+          var words = notesTA.value.trim().split(/\s+/).filter(Boolean).length;
+          drawerStat.textContent = words + (words === 1 ? ' word' : ' words');
+        }
+        updateStat();
+
+        function openDrawer() {
+          if (!drawer || !drawerBackdrop) return;
+          drawer.classList.add('open');
+          drawerBackdrop.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          setTimeout(function() { if (notesTA) notesTA.focus(); }, 300);
+        }
+        function closeDrawer() {
+          if (!drawer || !drawerBackdrop) return;
+          drawer.classList.remove('open');
+          drawerBackdrop.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+
+        var openDrawerBtn = document.getElementById('open-notes-drawer');
+        if (openDrawerBtn) openDrawerBtn.addEventListener('click', openDrawer);
+
+        var closeDrawerBtn = document.getElementById('close-drawer');
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+
+        if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
+
+        if (notesTA) {
+          notesTA.addEventListener('input', function() {
+            try { localStorage.setItem('duke-notes', notesTA.value); } catch(e) {}
+            updateStat();
+          });
+        }
+
+        var clearBtn = document.getElementById('clear-notes');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function() {
+            if (notesTA && confirm('Clear all notes? This cannot be undone.')) {
+              notesTA.value = '';
+              try { localStorage.removeItem('duke-notes'); } catch(e) {}
+              updateStat();
+            }
+          });
+        }
+
+        var downloadBtn = document.getElementById('download-notes');
+        if (downloadBtn) {
+          downloadBtn.addEventListener('click', function() {
+            var content = notesTA ? notesTA.value : '';
+            if (!content.trim()) { alert('Nothing to download — your notes are empty.'); return; }
+            var blob = new Blob([content], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'duke-notes-' + new Date().toISOString().slice(0, 10) + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

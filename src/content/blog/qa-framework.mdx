@@ -1,203 +1,222 @@
-﻿---
+---
 title: "QA Framework"
 description: "A risk-based QA process covering FMEA, test strategy, exit criteria, and test planning"
 pubDate: 2026-05-07
+readTime: 14
 tags:
-  - QA
-  - testing
-  - risk
+ - qa
+ - testing
+ - risk
 ---
 
-import Panel from '../../components/Panel.astro';
-import Badge from '../../components/Badge.astro';
-import Steps from '../../components/Steps.astro';
 
-<Panel variant="blue" title="Purpose">
 
-A practical, repeatable framework for finding failures, assessing risk, and deciding when a feature is ready to ship. Applies to software features, app testing, and UX validation.
+> **Purpose**
+>
+> A practical, repeatable framework for finding failures, assessing risk, and deciding when a feature is ready to ship. Applies to software features, app testing, and UX validation.
 
-</Panel>
+
+## Contents
+
+
+1. [The Full QA Loop](#the-full-qa-loop)
+2. [How This Framework Applies to Our Daily Work](#how-this-framework-applies-to-our-daily-work)
+3. [Step 1 - Identify Risk](#step-1---identify-risk-how-to-find-failures)
+4. [Step 2 - Risk Assessment](#step-2---risk-assessment-fmea)
+5. [Step 3 - Test Strategy](#step-3---test-strategy)
+6. [Step 4 - Exit Criteria](#step-4---exit-criteria-when-to-stop-testing)
+7. [Test Case Template](#test-case-template)
+8. [Test Plan](#test-plan---what-it-is-and-what-goes-in-it)
+
+
+---
+
 
 ## The Full QA Loop
 
 
 Every QA cycle follows this sequence:
 
-<Steps>
 
-<li>Risk Identificationﾂ窶・Identify what could go wrong before testing begins</li>
-<li>Risk Assessmentﾂ窶・Use FMEA to prioritize which failures matter most</li>
-<li>Test strategy 窶・Decide how to test each risk, which test types to use, and how deep to go</li>
-<li>Exit Criteria窶・Ship when residual risk is acceptable, not when bugs run out</li>
+1. Risk Identification - Identify what could go wrong before testing begins
+2. Risk Assessment - Use FMEA to prioritize which failures matter most
+3. Test strategy - Decide how to test each risk, which test types to use, and how deep to go
+4. Exit Criteria - Ship when residual risk is acceptable, not when bugs run out
 
-</Steps>
-<Panel variant="yellow" title="Core mindset">
 
-"If this goes wrong 窶・who gets hurt, how badly, and how likely is it?"<br/>Find ways to break the system, Assess the potential failures and make employ appropriate test strategies.
+> **Core mindset**
+>
+> "If this goes wrong - who gets hurt, how badly, and how likely is it?"
+>
+> Find ways to break the system, assess the potential failures, and choose appropriate test strategies.
 
-</Panel>
 
 ## How This Framework Applies to Our Daily Work
 
 
-Our typical QA cycle already follows this framework 窶・it just hasn't been made explicit. Here is how each task maps to the framework:
+Our typical QA cycle already follows this framework - it just hasn't been made explicit. Here is how each task maps to the framework:
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>What we actually do</th><th>Framework section it maps to</th></tr></thead>
-<tbody>
-<tr><td>Review new product / feature spec and derive test strategy</td><td>Step 1 窶・Find failures + Test plan (scope &amp; risk sections)</td></tr>
-<tr><td>Decide which existing test cases are relevant to run</td><td>Step 4 窶・Coverage strategy (match depth to RPN, not gut feel)</td></tr>
-<tr><td>Run tests, review results, triage and discuss defects with dev</td><td>Step 2 窶・FMEA scoring + Step 3 窶・Mitigation strategy</td></tr>
-<tr><td>Confirmation testing and regression testing</td><td>Step 5 窶・Exit criteria (all high-RPN items re-verified)</td></tr>
-<tr><td>Sign off and create reports</td><td>Step 5 窶・Documenting residual risk and stakeholder acceptance</td></tr>
-<tr><td>Lean / process improvement projects to cut redundant test cases and reduce cost</td><td>Step 4 + Step 1窶・Low-RPN tests are the first to cut, with a documented reason. Target improving test cases with low coverage</td></tr>
-</tbody>
-</table></div>
-<Panel variant="blue" title="The biggest gap this framework fills">
 
-Currently, decisions about which tests to skip and which to use are made by Team's members' experience and personal skill level. This framework replaces that with a defensible rule:ﾂﾂCut low-RPN tests first. Employ Tests for High-RPN.<br/><br/>
-    Instead of "we skipped these tests because we ran out of time," we can say "we accepted these risks because RPN was below threshold." That is cost-conscious, LSS-compatible, and explainable to management.
+| What we actually do | Framework section it maps to |
+| --- | --- |
+| Review new product / feature spec and derive test strategy | Step 1 - Find failures + Test plan (scope & risk sections) |
+| Decide which existing test cases are relevant to run | Step 4 - Coverage strategy (match depth to RPN, not gut feel) |
+| Run tests, review results, triage and discuss defects with dev | Step 2 - FMEA scoring + Step 3 - Mitigation strategy |
+| Confirmation testing and regression testing | Step 5 - Exit criteria (all high-RPN items re-verified) |
+| Sign off and create reports | Step 5 - Documenting residual risk and stakeholder acceptance |
+| Lean / process improvement projects to cut redundant test cases and reduce cost | Step 4 + Step 1 - Low-RPN tests are the first to cut, with a documented reason. Target improving test cases with low coverage |
 
-</Panel>
 
-## Step 1 窶・Identify Risk: How to Find Failures
+> **The biggest gap this framework fills**
+>
+> Currently, decisions about which tests to skip and which to use are made by team members' experience and personal skill level. This framework replaces that with a defensible rule: cut low-RPN tests first and prioritize tests for high-RPN risks.
+>
+>
+>
+>
+>   Instead of "we skipped these tests because we ran out of time," we can say "we accepted these risks because RPN was below threshold." That is cost-conscious, LSS-compatible, and explainable to management.
+
+
+## Step 1 - Identify Risk: How to Find Failures
 
 
 Before writing a single test case, map the system by answering these six questions:
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Element</th><th>Question to ask</th><th>Test ideas it generates</th></tr></thead>
-<tbody>
-<tr><td>Inputs</td><td>What goes in? (data, actions, states)</td><td>Valid, invalid, empty, extreme, unexpected format</td></tr>
-<tr><td>Outputs</td><td>What comes out? (results, side effects, data changes)</td><td>Correct result? Wrong result that looks right? No result? Side effects?</td></tr>
-<tr><td>User flow</td><td>What's the path from entry to done?</td><td>Happy path, skip a step, out of order, abandon midway</td></tr>
-<tr><td>Edge cases</td><td>What breaks the boundaries of each step?</td><td>Min/max values, simultaneous actions, rapid repeat</td></tr>
-<tr><td>Dependencies</td><td>What must exist or work before this can run?</td><td>Kill each dependency one by one 窶・what breaks?</td></tr>
-<tr><td>Assumptions</td><td>What does the system expect the user to know or do?</td><td>Violate each assumption deliberately</td></tr>
-</tbody>
-</table></div>
 
-## Step 2 窶・Risk Assessment (FMEA)
+| Element | Question to ask | Test ideas it generates |
+| --- | --- | --- |
+| Inputs | What goes in? (data, actions, states) | Valid, invalid, empty, extreme, unexpected format |
+| Outputs | What comes out? (results, side effects, data changes) | Correct result? Wrong result that looks right? No result? Side effects? |
+| User flow | What's the path from entry to done? | Happy path, skip a step, out of order, abandon midway |
+| Edge cases | What breaks the boundaries of each step? | Min/max values, simultaneous actions, rapid repeat |
+| Dependencies | What must exist or work before this can run? | Kill each dependency one by one - what breaks? |
+| Assumptions | What does the system expect the user to know or do? | Violate each assumption deliberately |
+
+
+## Step 2 - Risk Assessment (FMEA)
 
 
 Score each failure on three axes. Multiply them to get a Risk Priority Number (RPN).
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Axis</th><th>Question</th><th>Score guide (1窶・0)</th></tr></thead>
-<tbody>
-<tr><td>Severity (S)</td><td>How bad is it for the user if this fails?</td><td>1 = minor inconvenience ﾂｷ 10 = data loss / safety issue</td></tr>
-<tr><td>Occurrence (O)</td><td>How likely is this failure to happen?</td><td>1 = almost never ﾂｷ 10 = happens constantly</td></tr>
-<tr><td>Detectability (D)</td><td>Would we even notice if it failed?</td><td>1 = obvious crash ﾂｷ 10 = silent, nobody notices</td></tr>
-</tbody>
-</table></div>
-<Panel variant="blue" title="Formula">
 
-RPN = Severity ﾃ・Occurrence ﾃ・Detectability<br/>Higher RPN = higher priority. Focus effort on the highest numbers first.
+| Axis | Question | Score guide (1-10) |
+| --- | --- | --- |
+| Severity (S) | How bad is it for the user if this fails? | 1 = minor inconvenience - 10 = data loss / safety issue |
+| Occurrence (O) | How likely is this failure to happen? | 1 = almost never - 10 = happens constantly |
+| Detectability (D) | Would we even notice if it failed? | 1 = obvious crash - 10 = silent, nobody notices |
 
-</Panel>
+
+> **Formula**
+>
+> RPN = Severity x Occurrence x Detectability
+>
+> Higher RPN = higher priority. Focus effort on the highest numbers first.
+
 
 ### What to do with each risk
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Decision</th><th>When to use it</th></tr></thead>
-<tbody>
-<tr><td><Badge variant="red">Fix it</Badge></td><td>High severity 窶・cannot ship with this defect</td></tr>
-<tr><td><Badge variant="yellow">Test it</Badge></td><td>Medium risk 窶・needs verification before shipping</td></tr>
-<tr><td><Badge variant="blue">Monitor it</Badge></td><td>Low detectability 窶・hard to reproduce, watch in production</td></tr>
-<tr><td><Badge variant="grey">Accept it</Badge></td><td>Low RPN 窶・cost to fix outweighs the risk. Document the decision.</td></tr>
-</tbody>
-</table></div>
 
-## Step 3 窶・Test Strategy
+| Decision | When to use it |
+| --- | --- |
+| **Fix it** | High severity - cannot ship with this defect |
+| **Test it** | Medium risk - needs verification before shipping |
+| **Monitor it** | Low detectability - hard to reproduce, watch in production |
+| **Accept it** | Low RPN - cost to fix outweighs the risk. Document the decision. |
 
 
-Once you know your risks, test strategy answers: how do you actually test each one? The sequence is: group risks by RPN 竊・assign a test approach 竊・select the right test types.
+## Step 3 - Test Strategy
+
+
+Once you know your risks, test strategy answers: how do you actually test each one? The sequence is: group risks by RPN -> assign a test approach -> select the right test types.
 
 
 ### Test approach by risk level
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Risk level</th><th>Approach</th><th>Test depth</th></tr></thead>
-<tbody>
-<tr><td><Badge variant="red">High RPN</Badge></td><td>Thorough 窶・multiple test types, edge cases, repeat after fixes</td><td>Functional + Boundary + Negative + Integration</td></tr>
-<tr><td><Badge variant="yellow">Medium RPN</Badge></td><td>Targeted 窶・focus on the specific failure mode only</td><td>Functional + key failure modes</td></tr>
-<tr><td><Badge variant="blue">Low RPN</Badge></td><td>Lightweight 窶・quick sanity check, move on</td><td>Functional only 窶・does it basically work?</td></tr>
-<tr><td><Badge variant="grey">Accepted risk</Badge></td><td>None 窶・document the decision and skip</td><td>窶・</td></tr>
-</tbody>
-</table></div>
 
-### Test types 窶・what they are and when to use them
-
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Type</th><th>What it is</th><th>When to use</th></tr></thead>
-<tbody>
-<tr><td>Functional</td><td>Verify the feature does what it is supposed to do</td><td>Always 窶・every risk level</td></tr>
-<tr><td>Boundary</td><td>Test at the edges of valid input ranges</td><td>When inputs have limits or ranges</td></tr>
-<tr><td>Negative</td><td>Deliberately give wrong or bad input to check failure behavior</td><td>When graceful failure matters</td></tr>
-<tr><td>Exploratory</td><td>Unscripted 窶・tester uses judgment to find unexpected issues</td><td>High-risk features, new or unfamiliar areas</td></tr>
-<tr><td>Regression</td><td>Re-run existing tests after a change to catch unintended breakage</td><td>After any fix, update, or new feature</td></tr>
-<tr><td>Integration</td><td>Test how features interact with each other and with the system</td><td>When dependencies or touchpoints exist</td></tr>
-<tr><td>Confirmation</td><td>Re-test a specific defect after it has been fixed</td><td>After every bug fix 窶・without exception</td></tr>
-<tr><td>Smoke</td><td>Quick pass to confirm basic functionality works before deeper testing</td><td>At the start of a test cycle or after a new build</td></tr>
-<tr><td>Reliability</td><td>Validate that the feature performs consistently under sustained or stressful conditions 窶・includes performance, long-run, stress, and consistency testing</td><td>When stability over time matters, or when the feature is used repeatedly or under heavy load</td></tr>
-</tbody>
-</table></div><Panel variant="purple" title="How to make a good test case">
-
-"A good test case is like a good story 窶・easy to follow, easy to understand, and guides the tester smoothly through every step of the journey, from entry to exit."
-
-<br/>
-
-The 4 Cs of a Good Test Case
+| Risk level | Approach | Test depth |
+| --- | --- | --- |
+| **High RPN** | Thorough - multiple test types, edge cases, repeat after fixes | Functional + Boundary + Negative + Integration |
+| **Medium RPN** | Targeted - focus on the specific failure mode only | Functional + key failure modes |
+| **Low RPN** | Lightweight - quick sanity check, move on | Functional only - does it basically work? |
+| **Accepted risk** | None - document the decision and skip | - |
 
 
-1. Clear 窶・anyone can read it cold and know what to do
-2. Complete 窶・preconditions, steps, expected result. No gaps.
-3. Concise 窶・no fluff, no redundant steps
-4. Consequential 窶・if this test never existed, would anyone notice? If no, cut it.
+### Test types - what they are and when to use them
 
-Ask the question: "If a new tester runs this tomorrow with zero context, will they know exactly what to do and what to look for?"
-</Panel>
-<Panel variant="yellow" title="Optional 窶・UX Testing">
 
-Apply when the feature is user-facing. Functional QA asks "does it work?" 窶・UX testing asks "does it make sense to a real user?"<br/><br/>
-Method: Walk through the user flow as a zero-context user. Narrate what you expect before each action. Every mismatch is a UX failure.
+| Type | What it is | When to use |
+| --- | --- | --- |
+| Functional | Verify the feature does what it is supposed to do | Always - every risk level |
+| Boundary | Test at the edges of valid input ranges | When inputs have limits or ranges |
+| Negative | Deliberately give wrong or bad input to check failure behavior | When graceful failure matters |
+| Exploratory | Unscripted - tester uses judgment to find unexpected issues | High-risk features, new or unfamiliar areas |
+| Regression | Re-run existing tests after a change to catch unintended breakage | After any fix, update, or new feature |
+| Integration | Test how features interact with each other and with the system | When dependencies or touchpoints exist |
+| Confirmation | Re-test a specific defect after it has been fixed | After every bug fix - without exception |
+| Smoke | Quick pass to confirm basic functionality works before deeper testing | At the start of a test cycle or after a new build |
+| Reliability | Validate that the feature performs consistently under sustained or stressful conditions - includes performance, long-run, stress, and consistency testing | When stability over time matters, or when the feature is used repeatedly or under heavy load |
 
-<div class="table-wrap" style="position: relative;"><table style="margin-top:10px;">
-<thead><tr><th>Lens</th><th>Question to ask</th></tr></thead>
-<tbody>
-<tr><td>Clarity</td><td>Do I know what this is and what it does before I touch it?</td></tr>
-<tr><td>Feedback</td><td>Does the system tell me what is happening at each step?</td></tr>
-<tr><td>Recovery</td><td>If I make a mistake, can I get back easily?</td></tr>
-<tr><td>Expectation match</td><td>Did it do what I predicted it would do?</td></tr>
-<tr><td>Consistency</td><td>Does it behave the same way as similar features in the product?</td></tr>
-</tbody>
-</table></div>
-</Panel>
-<Panel variant="green" title="Optional 窶・Mitigation Discussion with Dev">
+> **How to make a good test case**
+>
+> "A good test case is like a good story - easy to follow, easy to understand, and guides the tester smoothly through every step of the journey, from entry to exit."
+>
+>
+>
+>
+>
+> The 4 Cs of a Good Test Case
+>
+>
+> 1. Clear - anyone can read it cold and know what to do
+> 2. Complete - preconditions, steps, expected result. No gaps.
+> 3. Concise - no fluff, no redundant steps
+> 4. Consequential - if this test never existed, would anyone notice? If no, cut it.
+>
+> Ask the question: "If a new tester runs this tomorrow with zero context, will they know exactly what to do and what to look for?"
 
-This is not a QA execution step 窶・it is a communication tool for defect discussions with developers. When raising a high-risk defect, use this ladder to suggest the appropriate fix level:
 
-<div class="table-wrap" style="position: relative;"><table style="margin-top:10px;">
-<thead><tr><th>Suggestion</th><th>What it means</th><th>Example</th></tr></thead>
-<tbody>
-<tr><td>Prevent</td><td>Remove the risk entirely at the design level</td><td>"Can we redesign this so invalid input is impossible?"</td></tr>
-<tr><td>Reduce</td><td>Lower the odds with guards or validation</td><td>"Can we add input validation before this runs?"</td></tr>
-<tr><td>Detect</td><td>Add monitoring or alerts so failures are caught fast</td><td>"Can we log this and alert when it happens?"</td></tr>
-<tr><td>Recover</td><td>Add a fallback or rollback as a last resort</td><td>"At minimum, can we show an error and let the user retry?"</td></tr>
-</tbody>
-</table></div>
+> **Optional - UX Testing**
+>
+> Apply when the feature is user-facing. Functional QA asks "does it work?" - UX testing asks "does it make sense to a real user?"
+>
+>
+>
+>
+> Method: Walk through the user flow as a zero-context user. Narrate what you expect before each action. Every mismatch is a UX failure.
+>
+>
+> | Lens | Question to ask |
+> | --- | --- |
+> | Clarity | Do I know what this is and what it does before I touch it? |
+> | Feedback | Does the system tell me what is happening at each step? |
+> | Recovery | If I make a mistake, can I get back easily? |
+> | Expectation match | Did it do what I predicted it would do? |
+> | Consistency | Does it behave the same way as similar features in the product? |
 
-QA identifies the risk and severity. Dev owns the mitigation decision. Use this as a starting point for conversation, not a prescription.
 
-</Panel>
+> **Optional - Mitigation Discussion with Dev**
+>
+> This is not a QA execution step - it is a communication tool for defect discussions with developers. When raising a high-risk defect, use this ladder to suggest the appropriate fix level:
+>
+>
+> | Suggestion | What it means | Example |
+> | --- | --- | --- |
+> | Prevent | Remove the risk entirely at the design level | "Can we redesign this so invalid input is impossible?" |
+> | Reduce | Lower the odds with guards or validation | "Can we add input validation before this runs?" |
+> | Detect | Add monitoring or alerts so failures are caught fast | "Can we log this and alert when it happens?" |
+> | Recover | Add a fallback or rollback as a last resort | "At minimum, can we show an error and let the user retry?" |
+>
+>
+> QA identifies the risk and severity. Dev owns the mitigation decision. Use this as a starting point for conversation, not a prescription.
 
-## Step 4 窶・Exit Criteria: when to Stop Testing
 
-<Panel variant="yellow" title="Core rule">
+## Step 4 - Exit Criteria: when to Stop Testing
 
-Stop when the remaining risk is acceptable 窶・not when you have found no more bugs. There will always be more bugs. The goal is a defensible, documented decision to ship.
 
-</Panel>
+> **Core rule**
+>
+> Stop when the remaining risk is acceptable - not when you have found no more bugs. There will always be more bugs. The goal is a defensible, documented decision to ship.
+
 
 ### Exit criteria checklist
 
@@ -207,76 +226,103 @@ Before signing off on a feature, confirm all three:
 - All high-risk areas (high RPN) have test coverage
 - Residual risk is understood and formally accepted by a stakeholder
 - Every known open bug has a decision: fix before ship / fix after ship / accept
-<Panel variant="green" title="Important habit">
 
-Define your exit criteria before you start testing 窶・not when you feel like stopping. Write it down at the start of every test cycle.
+> **Important habit**
+>
+> Define your exit criteria before you start testing - not when you feel like stopping. Write it down at the start of every test cycle.
 
-</Panel>
 
 ## Test Case Template
 
 
 Use this structure for every test case. One test case = one thing being verified. Do not bundle multiple behaviors into a single test case.
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Field</th><th>What goes in it</th><th>Example</th></tr></thead>
-<tbody>
-<tr><td>Test ID</td><td>Unique identifier</td><td>TC-001</td></tr>
-<tr><td>Title</td><td>One line 窶・what you are testing</td><td>Login fails with incorrect password</td></tr>
-<tr><td>Preconditions</td><td>What must be true before running this</td><td>User account exists, app is open</td></tr><tr><td>Test Workload</td><td>Numbered, in Minutes and 1 Person/Day</td><td>ﾂ480 mins = 1PD</td></tr>
-<tr><td>Test steps</td><td>Numbered, one action per step</td><td>1. Open login screen 2. Enter wrong password 3. Tap Login</td></tr>
-<tr><td>Expected result</td><td>Exactly what should happen (be specific)</td><td>Error message appears within 2 seconds. No login occurs.</td></tr>
-<tr><td>Actual result</td><td>What actually happened (fill during execution)</td><td>窶・</td></tr>
-<tr><td>Status</td><td>Outcome of the test run</td><td>Pass / Fail / Blocked / Skip</td></tr>
-<tr><td>Priority</td><td>Tied to your RPN score</td><td>High / Medium / Low</td></tr>
-</tbody>
-</table></div>
-<Panel variant="blue" title="Writing good expected results">
 
-Bad: "Works correctly" 窶・too vague, cannot be verified.<br/>
-Good: "Button turns green and a success message appears within 2 seconds." 窶・specific and verifiable.
+| Field | What goes in it | Example |
+| --- | --- | --- |
+| Test ID | Unique identifier | TC-001 |
+| Title | One line - what you are testing | Login fails with incorrect password |
+| Preconditions | What must be true before running this | User account exists, app is open |
+| Test Workload | Numbered, in Minutes and 1 Person/Day | 480 mins = 1PD |
+| Test steps | Numbered, one action per step | 1. Open login screen 2. Enter wrong password 3. Tap Login |
+| Expected result | Exactly what should happen (be specific) | Error message appears within 2 seconds. No login occurs. |
+| Actual result | What actually happened (fill during execution) | - |
+| Status | Outcome of the test run | Pass / Fail / Blocked / Skip |
+| Priority | Tied to your RPN score | High / Medium / Low |
 
-</Panel>
 
-## Test Plan 窶・What It Is and What Goes In It
+> **Writing good expected results**
+>
+> Bad: "Works correctly" - too vague, cannot be verified.
+>
+>
+> Good: "Button turns green and a success message appears within 2 seconds." - specific and verifiable.
+
+
+## Test Plan - What It Is and What Goes In It
 
 
 A test plan is a document written before testing begins that answers one question: "How will we verify this product is ready to ship?"
 
-<Panel variant="yellow" title="The key difference from a test case list">
 
-A test case list starts from existing tests and picks what seems relevant.<br/>
-    A real test plan starts from risk 窶・then decides what tests are needed to cover it.<br/>
-    This is why things slip through checklists: if no existing test covers a new risk, the checklist misses it by design.
+> **The key difference from a test case list**
+>
+> A test case list starts from existing tests and picks what seems relevant.
+>
+>
+>   A real test plan starts from risk - then decides what tests are needed to cover it.
+>
+>
+>   This is why things slip through checklists: if no existing test covers a new risk, the checklist misses it by design.
 
-</Panel>
 
 ### The 6 sections of a test plan
 
-<div class="table-wrap" style="position: relative;"><table>
-<thead><tr><th>Section</th><th>Question it answers</th><th>Why it matters</th></tr></thead>
-<tbody>
-<tr><td>1. Scope</td><td>What are we testing? What are we deliberately NOT testing?</td><td>Makes boundaries explicit. Prevents scope creep.</td></tr>
-<tr><td>2. Objectives</td><td>What does "good enough to ship" look like?</td><td>Aligns the team on definition of done before testing starts.</td></tr>
-<tr><td>3. Risk assessment</td><td>What are the highest-risk areas and why?</td><td>Drives where effort is focused. New features = new risks not covered by old tests.</td></tr>
-<tr><td>4. Test strategy</td><td>How will we test each area? (manual, exploratory, regression)</td><td>Ensures right type of testing is applied to right risk level.</td></tr>
-<tr><td>5. Resources &amp; schedule</td><td>Who tests what, and by when?</td><td>Makes accountability clear and flags if timeline is unrealistic.</td></tr>
-<tr><td>6. Exit criteria</td><td>What conditions mean we are done?</td><td>Prevents testing from running forever or stopping too early.</td></tr>
-</tbody>
-</table></div>
+
+| Section | Question it answers | Why it matters |
+| --- | --- | --- |
+| 1. Scope | What are we testing? What are we deliberately NOT testing? | Makes boundaries explicit. Prevents scope creep. |
+| 2. Objectives | What does "good enough to ship" look like? | Aligns the team on definition of done before testing starts. |
+| 3. Risk assessment | What are the highest-risk areas and why? | Drives where effort is focused. New features = new risks not covered by old tests. |
+| 4. Test strategy | How will we test each area? (manual, exploratory, regression) | Ensures right type of testing is applied to right risk level. |
+| 5. Resources & schedule | Who tests what, and by when? | Makes accountability clear and flags if timeline is unrealistic. |
+| 6. Exit criteria | What conditions mean we are done? | Prevents testing from running forever or stopping too early. |
+
 
 ### Minimum viable Test Plan template
 
-<Panel variant="green" title="Simple test plan template">
 
-Product / Feature: [name]<br/>
-Version: [version] ﾂﾂｷﾂ Date: [date] ﾂﾂｷﾂ Author: [name]<br/><br/>
-In scope: [list what will be tested]<br/>
-Out of scope: [list what will NOT be tested, and why]<br/><br/>
-New risks this release: [list new features or changes + FMEA score for each]<br/>
-Test strategy: [how each risk area will be tested]<br/>
-Who / When: [owner and deadline per area]<br/><br/>
-Exit criteria: All high-RPN items tested. All open bugs triaged. Stakeholder sign-off received.
+> **Simple test plan template**
+>
+> Product / Feature: [name]
+>
+>
+> Version: [version]  -  Date: [date]  -  Author: [name]
+>
+>
+>
+>
+> In scope: [list what will be tested]
+>
+>
+> Out of scope: [list what will NOT be tested, and why]
+>
+>
+>
+>
+> New risks this release: [list new features or changes + FMEA score for each]
+>
+>
+> Test strategy: [how each risk area will be tested]
+>
+>
+> Who / When: [owner and deadline per area]
+>
+>
+>
+>
+> Exit criteria: All high-RPN items tested. All open bugs triaged. Stakeholder sign-off received.
 
-</Panel>
-<hr/>
+
+---
+

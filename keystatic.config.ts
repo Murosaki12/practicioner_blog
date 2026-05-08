@@ -17,6 +17,24 @@ export default config({
         tags: fields.array(fields.text({ label: 'Tag' }), { label: 'Tags' }),
         content: fields.mdx({
           label: 'Content',
+          options: {
+            heading: [2, 3, 4],
+            bold: true,
+            italic: true,
+            strikethrough: true,
+            code: true,
+            blockquote: true,
+            orderedList: true,
+            unorderedList: true,
+            table: true,
+            link: true,
+            image: {
+              directory: 'src/assets/images',
+              publicPath: '../../assets/images'
+            },
+            divider: true,
+            codeBlock: true
+          },
           components: {
             Panel: wrapper({
               label: 'Panel',
@@ -50,6 +68,10 @@ export default config({
                   defaultValue: 'blue'
                 })
               }
+            }),
+            Steps: wrapper({
+              label: 'Steps',
+              schema: {}
             })
           }
         })

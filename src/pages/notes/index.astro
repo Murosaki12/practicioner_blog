@@ -2,39 +2,195 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const notes = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Collect all tags with counts
+const tagCounts: Record<string, number> = {};
+notes.forEach(n => (n.data.tags ?? []).forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+const allTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+
+// Notes data for client-side filter (passed via define:vars)
+const notesData = notes.map(n => ({
+  slug: n.slug,
+  title: n.data.title,
+  description: n.data.description ?? '',
+  pubDate: n.data.pubDate.toISOString(),
+  tags: n.data.tags ?? [],
+  readTime: n.data.readTime ?? 5,
+}));
 ---
 
 <BaseLayout
-  title="Learning Notes"
-  description="Learning notes on QA practice, AI testing, and product quality."
+  title="Notes"
+  description="Field notes on QA, AI, and software craft."
+  activePage="notes"
 >
-  <section class="intro">
-    <h1>Learning Notes</h1>
-    <p class="lead">Field notes for QA practice, AI testing, and ideas that are still evolving.</p>
-  </section>
+  <div class="container">
+    <section class="hero fade-in">
+      <span class="eyebrow"><span class="dot"></span>Learning notes</span>
+      <h1>Notes</h1>
+      <p class="lead">
+        Field notes on QA, AI, and software craft. Some are polished, some are evolving &mdash; all of them are things I wanted to remember.
+      </p>
+    </section>
 
-  <ul class="note-list">
-    {notes.map((note) => (
-      <li class="note-card">
-        <span class="note-meta">
-          {note.data.pubDate.toLocaleDateString('en', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </span>
-        <a href={base + '/notes/' + note.slug + '/'}>{note.data.title}</a>
-        <p>{note.data.description}</p>
-        {note.data.tags && (
-          <div class="tags" aria-label={`Tags for ${note.data.title}`}>
-            {note.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-          </div>
-        )}
-      </li>
-    ))}
-  </ul>
+    <!-- Search -->
+    <div class="search-wrap fade-in fade-in-1">
+      <span class="search-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        id="notes-search"
+        placeholder="Did Duke even know about this?..."
+        autocomplete="off"
+        aria-label="Search notes"
+      />
+    </div>
+
+    <!-- Tag filter -->
+    <div class="filter-row fade-in fade-in-2" id="tag-filter">
+      <span class="filter-label">Tags</span>
+      {allTags.map(([tag, count]) => (
+        <button
+          class="tag"
+          data-tag={tag}
+          aria-pressed="false"
+          type="button"
+        >
+          #{tag}<span style="opacity:0.6;margin-left:2px">&middot;{count}</span>
+        </button>
+      ))}
+      <button class="tag" id="clear-tags" style="display:none;opacity:0.7" type="button">clear</button>
+    </div>
+
+    <!-- Note list -->
+    <ul class="note-list" id="notes-list">
+      {notes.map((note, i) => {
+        const date = note.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return (
+          <li data-note-slug={note.slug}>
+            <a
+              class={'note-row fade-in fade-in-' + Math.min(i + 1, 3)}
+              href={base + '/notes/' + note.slug + '/'}
+            >
+              <div class="note-date">{date}</div>
+              <div class="note-body">
+                <div class="note-title">{note.data.title}</div>
+                <div class="note-desc">{note.data.description}</div>
+                <div class="note-tags">
+                  {(note.data.tags ?? []).map(t => <span class="tag">#{t}</span>)}
+                </div>
+              </div>
+              <div class="note-time">{note.data.readTime ?? 5} min read</div>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    <div class="empty" id="empty-state" style="display:none">
+      <span class="em-mark">&#8709;</span>
+      Nothing matched. Try a different search or clear the filters.
+    </div>
+  </div>
+
+  <script define:vars={{ notesData }}>
+  (function() {
+    var allNotes = notesData;
+
+    var searchInput = document.getElementById('notes-search');
+    var tagBtns = document.querySelectorAll('[data-tag]');
+    var clearTagsBtn = document.getElementById('clear-tags');
+    var notesList = document.getElementById('notes-list');
+    var emptyState = document.getElementById('empty-state');
+    var noteItems = notesList ? notesList.querySelectorAll('[data-note-slug]') : [];
+
+    var activeTags = [];
+    var query = '';
+
+    var PLACEHOLDERS = [
+      'Did Duke even know about this?...',
+      'What did Future-Duke write here?...',
+      'Search by topic, title, or tag...',
+      'Try "ai", "qa", or "testing"...',
+      'Duke probably wrote about this...',
+    ];
+    var phIdx = 0;
+    if (searchInput) {
+      setInterval(function() {
+        if (document.activeElement !== searchInput) {
+          phIdx = (phIdx + 1) % PLACEHOLDERS.length;
+          searchInput.placeholder = PLACEHOLDERS[phIdx];
+        }
+      }, 3500);
+    }
+
+    function applyFilter() {
+      var q = query.trim().toLowerCase();
+      var matched = new Set();
+
+      allNotes.forEach(function(n) {
+        var titleMatch = n.title.toLowerCase().includes(q);
+        var descMatch = n.description.toLowerCase().includes(q);
+        var tagTextMatch = n.tags.some(function(t) { return t.toLowerCase().includes(q); });
+        var matchesQ = !q || titleMatch || descMatch || tagTextMatch;
+        var matchesTags = activeTags.length === 0 || activeTags.every(function(t) { return n.tags.includes(t); });
+        if (matchesQ && matchesTags) matched.add(n.slug);
+      });
+
+      var anyVisible = false;
+      noteItems.forEach(function(li) {
+        var slug = li.getAttribute('data-note-slug');
+        var show = matched.has(slug);
+        li.style.display = show ? '' : 'none';
+        if (show) anyVisible = true;
+      });
+
+      if (emptyState) emptyState.style.display = anyVisible ? 'none' : '';
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        query = searchInput.value;
+        applyFilter();
+      });
+    }
+
+    tagBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tag = btn.getAttribute('data-tag');
+        var idx = activeTags.indexOf(tag);
+        if (idx === -1) {
+          activeTags.push(tag);
+          btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
+        } else {
+          activeTags.splice(idx, 1);
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        }
+        if (clearTagsBtn) clearTagsBtn.style.display = activeTags.length > 0 ? '' : 'none';
+        applyFilter();
+      });
+    });
+
+    if (clearTagsBtn) {
+      clearTagsBtn.addEventListener('click', function() {
+        activeTags = [];
+        tagBtns.forEach(function(btn) {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+        clearTagsBtn.style.display = 'none';
+        applyFilter();
+      });
+    }
+  })();
+</script>
 </BaseLayout>
