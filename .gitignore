@@ -6,3 +6,4 @@ dist/
 npm-debug.log*
 astro-dev*.log
 .claude
+legacy/
